@@ -1,7 +1,5 @@
 # TransitionAnimation
- Godot plugin.
- 
- Show/hide toggle animation
+ Godot plugin. For easy set show/hide toggle animation.
 
 # Document
 [Chinese document](https://shimo.im/docs/rptwyk8gqcGRhYJQ/)
