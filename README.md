@@ -1,6 +1,9 @@
 # TransitionAnimation
  Godot plugin. For easy set show/hide toggle animation.
 
+# Screenshot
+![](screenshot.gif)
+
 # Document
 [Chinese document](https://shimo.im/docs/rptwyk8gqcGRhYJQ/)
 
