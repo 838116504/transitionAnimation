@@ -63,9 +63,9 @@ func _process(p_delta):
 	var value
 	var ratio = clamp(animCurTime / animTime, 0.0, 1.0)
 	if state == STATE_HIDING:
-		value = gradient.get_gradient(ratio)
+		value = gradient.interpolate(ratio)
 	else:
-		value = gradient.get_gradient(1.0 - ratio)
+		value = gradient.interpolate(1.0 - ratio)
 	
 	for i in get_children():
 		match mode:
@@ -286,7 +286,7 @@ func _get_property_list():
 		MODE_ROTATE:
 			ret.append({"name":"rotateMin", "type":TYPE_REAL, "usage":PROPERTY_USAGE_DEFAULT})
 			ret.append({"name":"rotateMax", "type":TYPE_REAL, "usage":PROPERTY_USAGE_DEFAULT})
-	ret.append({"name":"gradient", "type":TYPE_OBJECT, "hint":PROPERTY_HINT_RESOURCE_TYPE, "hint_string":"TransitionGradient"})
+	ret.append({"name":"gradient", "type":TYPE_OBJECT, "hint":PROPERTY_HINT_RESOURCE_TYPE, "hint_string":"TransitionGradient, Curve"})
 	return ret
 
 func _notification(what):

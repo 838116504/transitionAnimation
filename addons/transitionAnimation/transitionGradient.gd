@@ -11,5 +11,5 @@ func get_class_name():
 static func get_class_static():
 	return "TransitionGradient"
 
-func get_gradient(p_time:float) -> float:
+func interpolate(p_time:float) -> float:
 	return p_time
