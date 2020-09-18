@@ -4,6 +4,12 @@ extends Control
 
 signal completed
 
+
+export var animTime := 0.5
+export var showDeferr := 0.0
+export var hideDeferr := 0.0
+export var useChildMinSize := false
+
 enum { MODE_MOVE = 0, MODE_SCALE, MODE_MODULATE, MODE_ROTATE }
 var mode := MODE_MOVE setget set_mode
 var nextMode = null
@@ -22,17 +28,15 @@ var gradient = Object()
 enum { STATE_NORMAL = 0, STATE_SHOWING, STATE_HIDING }
 var state := STATE_NORMAL setget set_state
 var childTemp := {}
-export var animTime := 0.5
-export var showDeferr := 0.0
-export var hideDeferr := 0.0
 var animCurTime := animTime
-#var animCurValue := 0.0
 var animCurTargetValue = Vector2.ZERO
 var animCurStartValue = Vector2.ZERO
 var animCurDeferr := 0.0
-var visibleChangedSkip := false
 var needHide := false
 var lastVisibale := true
+
+func _init():
+	mouse_filter = MOUSE_FILTER_IGNORE
 
 func _process(p_delta):
 	if state == STATE_NORMAL:
@@ -70,13 +74,14 @@ func _process(p_delta):
 				if i is Control:
 					if not childTemp.has(i.get_instance_id()):
 						childTemp[i.get_instance_id()] = Vector2.ZERO
-					i.rect_position = i.rect_position - childTemp[i.get_instance_id()] + move
+					i.set_position(i.rect_position - childTemp[i.get_instance_id()] + move)
 					childTemp[i.get_instance_id()] = move
 				elif i is Node2D:
 					if not childTemp.has(i.get_instance_id()):
 						childTemp[i.get_instance_id()] = Vector2.ZERO
 					i.position = i.position - childTemp[i.get_instance_id()] + move
 					childTemp[i.get_instance_id()] = move
+				minimum_size_changed()
 			MODE_SCALE:
 				if !childTemp.has(get_instance_id()):
 					childTemp[get_instance_id()] = rect_scale
@@ -89,7 +94,6 @@ func _process(p_delta):
 				if !childTemp.has(get_instance_id()):
 					childTemp[get_instance_id()] = rect_rotation
 				rect_rotation = childTemp[get_instance_id()] + animCurStartValue + animCurTargetValue * value
-#	animCurValue = value
 
 func set_mode(p_value:int):
 	if mode == p_value:
@@ -140,7 +144,7 @@ func set_state(p_value:int):
 					for i in childTemp.keys():
 						child = instance_from_id(i)
 						if child is Control:
-							child.rect_position -= childTemp[i]
+							child.set_position(child.rect_position - childTemp[i])
 						elif child is Node2D:
 							child.position -= childTemp[i]
 				MODE_SCALE:
@@ -158,10 +162,7 @@ func set_state(p_value:int):
 				self.mode = nextMode
 				nextMode = null
 			if needHide:
-				visibleChangedSkip = true
-				lastVisibale = false
-				visible = false
-				needHide = false
+				hide_without_anim()
 			emit_signal("completed")
 		STATE_HIDING, STATE_SHOWING:
 			match mode:
@@ -291,10 +292,6 @@ func _get_property_list():
 func _notification(what):
 	match what:
 		NOTIFICATION_VISIBILITY_CHANGED:
-			if visibleChangedSkip:
-				visibleChangedSkip = false
-				return
-			
 			if lastVisibale == visible:
 				return
 			
@@ -306,8 +303,21 @@ func _notification(what):
 			lastVisibale = true
 			needHide = !visible
 			visible = true
-			
-#			print("[transitionAnimation] VISIBILITY_CHANGED my visible = ", str(visible), " visible in tree = ", str(is_visible_in_tree()))
+
+
+func _get_minimum_size():
+	if not useChildMinSize:
+		return Vector2.ZERO
+	
+	var ret := Vector2.ZERO
+	var end
+	for i in get_children():
+		end = i.rect_position + i.get_combined_minimum_size()
+		if ret.x < end.x:
+			ret.x = end.x
+		if ret.y < end.y:
+			ret.y = end.y
+	return ret
 
 func show():
 	self.state = STATE_SHOWING
@@ -320,3 +330,16 @@ func hide():
 	needHide = true
 	lastVisibale = true
 	visible = true
+
+func show_without_anim():
+	lastVisibale = true
+	visible = true
+	needHide = false
+	state = STATE_NORMAL
+
+func hide_without_anim():
+	lastVisibale = false
+	visible = false
+	needHide = false
+	state = STATE_NORMAL
+
