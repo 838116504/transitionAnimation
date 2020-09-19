@@ -17,7 +17,7 @@ enum { DIR_LEFT_TOP = 0, DIR_TOP, DIR_RIGHT_TOP,
 		DIR_LEFT, DIR_CENTER, DIR_RIGHT,
 		DIR_LEFT_BOTTOM, DIR_BOTTOM, DIR_RIGHT_BOTTOM, 
 		DIR_TOP_ONLY, DIR_BOTTOM_ONLY, DIR_LEFT_ONLY, DIR_RIGHT_ONLY }
-var moveDir := DIR_BOTTOM_ONLY
+var moveFrom := DIR_BOTTOM_ONLY
 var scaleMin := Vector2(1.0, 1.0)
 var scaleMax := Vector2(0.0, 0.0)
 var modulateMin := 1.0
@@ -168,7 +168,7 @@ func set_state(p_value:int):
 			match mode:
 				MODE_MOVE:
 					animCurStartValue = Vector2.ZERO
-					match moveDir:
+					match moveFrom:
 						DIR_LEFT_TOP:
 							animCurTargetValue = rect_pivot_offset
 						DIR_TOP:
@@ -210,8 +210,8 @@ func set_state(p_value:int):
 func _set(p_property, p_value):
 	match mode:
 		MODE_MOVE:
-			if p_property == "moveDir":
-				moveDir = p_value
+			if p_property == "moveFrom":
+				moveFrom = p_value
 				return true
 		MODE_SCALE:
 			if p_property == "scaleMin":
@@ -248,8 +248,8 @@ func _get(p_property):
 		return mode
 	match mode:
 		MODE_MOVE:
-			if p_property == "moveDir":
-				return moveDir
+			if p_property == "moveFrom":
+				return moveFrom
 		MODE_SCALE:
 			if p_property == "scaleMin":
 				return scaleMin
@@ -274,8 +274,8 @@ func _get_property_list():
 	ret.append({"name":"mode", "type":TYPE_INT, "hint":PROPERTY_HINT_ENUM, "hint_string":"move, scale, modulate, rotate", "usage":PROPERTY_USAGE_DEFAULT})
 	match mode:
 		MODE_MOVE:
-			ret.append({"name":"moveDir", "type":TYPE_INT, "hint":PROPERTY_HINT_ENUM, 
-					"hint_string":"DIR_LEFT_TOP,DIR_TOP,DIR_RIGHT_TOP,DIR_LEFT,DIR_CENTER,DIR_RIGHT,DIR_LEFT_BOTTOM, DIR_BOTTOM, DIR_RIGHT_BOTTOM,DIR_TOP_ONLY,DIR_BOTTOM_ONLY,DIR_LEFT_ONLY,DIR_RIGHT_ONLY",
+			ret.append({"name":"moveFrom", "type":TYPE_INT, "hint":PROPERTY_HINT_ENUM, 
+					"hint_string":"Left Top,Center Top,Right Top,Center Left,Center,Center Right,Left Bottom,Center Bottom,Right Bottom,Top,Bottom,Left,Right",
 					"usage":PROPERTY_USAGE_DEFAULT})
 		MODE_SCALE:
 			ret.append({"name":"scaleMin", "type":TYPE_VECTOR2, "usage":PROPERTY_USAGE_DEFAULT})
@@ -286,7 +286,7 @@ func _get_property_list():
 		MODE_ROTATE:
 			ret.append({"name":"rotateMin", "type":TYPE_REAL, "usage":PROPERTY_USAGE_DEFAULT})
 			ret.append({"name":"rotateMax", "type":TYPE_REAL, "usage":PROPERTY_USAGE_DEFAULT})
-	ret.append({"name":"gradient", "type":TYPE_OBJECT, "hint":PROPERTY_HINT_RESOURCE_TYPE, "hint_string":"TransitionGradient, Curve"})
+	ret.append({"name":"gradient", "type":TYPE_OBJECT, "hint":PROPERTY_HINT_RESOURCE_TYPE, "hint_string":"TransitionGradient,Curve"})
 	return ret
 
 func _notification(what):
